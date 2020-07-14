@@ -15,6 +15,9 @@ exclude: [".gitignore", "LICENSE", "README.md"]
 sass:
   style: compressed
 
+# Only needed for local development, will be enabled automatically by GitHub Pages
+plugins: ["jekyll-remote-theme"]
+
 # Theme settings
 theme-settings:
   
