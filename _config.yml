@@ -1,0 +1,65 @@
+# Site settings
+title: Jekyll GitBook Theme Demo Site
+email: adam@adamrehn.com
+description: Demo site for the GitBook-inspired documentation theme for Jekyll
+url: "https://adamrehn.github.io"
+baseurl: "/jekyll-theme-gitbook-demo"
+timezone: Australia/Brisbane
+
+# Build settings
+remote_theme: adamrehn/jekyll-theme-gitbook@v0.0.1
+markdown: kramdown
+kramdown:
+  input: GFM
+exclude: [".gitignore", "LICENSE", "README.md"]
+sass:
+  style: compressed
+
+# Theme settings
+theme-settings:
+  
+  # Copyright settings
+  copyright:
+    author: Adam Rehn
+    license: "Licensed under the MIT License, see the file [LICENSE](https://github.com/adamrehn/jekyll-theme-gitbook-demo/blob/master/LICENSE) for details."
+    year: 2020
+  
+  # The collection that contains our chapters
+  collection: chapters
+  
+  # Enable generation of links for chapter index pages
+  indices: true
+
+# Configure the permalinks for each chapter
+collections_dir: _collections
+collections:
+  chapters:
+    output: true
+    permalink: /:path
+
+# Use front matter defaults to supply the metadata for each chapter
+defaults:
+  -
+    scope:
+      path: ""
+      type: "chapters"
+    values:
+      layout: "default"
+  -
+    scope:
+      path: "_collections/_chapters/first-chapter"
+    values:
+      chapter: "First Chapter"
+      chapnum: 1
+  -
+    scope:
+      path: "_collections/_chapters/second-chapter"
+    values:
+      chapter: "Second Chapter"
+      chapnum: 2
+  -
+    scope:
+      path: "_collections/_chapters/third-chapter"
+    values:
+      chapter: "Third Chapter"
+      chapnum: 3
