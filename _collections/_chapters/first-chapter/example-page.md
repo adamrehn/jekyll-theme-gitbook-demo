@@ -1,16 +1,14 @@
 ---
-title: Example page
+title: Structuring models 
 pagenum: 1
 ---
 
-This is an example page demonstrating various types of content and their interactions with the features provided by the theme.
+[Models](https://docs.djangoproject.com/en/3.2/topics/db/models/#module-django.db.models) is the way of defining how our data looks like. On the web app, any data that changes will be defined in the models. 
 
 
-## Heading levels
+## `users/` 
 
-### Here's a subheading
-
-Text for this subheading goes here. Note that the subheading appears in the automatically-generated table of contents, which sits as a sidebar on the right at wider resolutions and inline with the body content at narrower resolutions.
+For User model, I decided to use [`AbstractUser`](https://docs.djangoproject.com/en/3.2/topics/auth/customizing/#using-a-custom-user-model-when-starting-a-project) so that I can have customized models with built-in fields.
 
 #### Here's a nested subheading
 
@@ -29,19 +27,7 @@ Text for this nested subheading goes here. Note that the nested subheading appea
 Text for this nested subheading goes here. Note that the nested subheading appears in the automatically-generated table of contents, which sits as a sidebar on the right at wider resolutions and inline with the body content at narrower resolutions.
 
 
-## Tables
 
-The theme automatically wraps tables in a `<div>` wrapper that overflows automatically on mobile devices when the table is too wide, without the need to horizontally scroll the entire page.
-
-|Column 1            |Column 2            |Column 3            |Column 4            |Column 5            |Column 6            |Column 7            |
-|--------------------|--------------------|--------------------|--------------------|--------------------|--------------------|--------------------|
-|Table cell contents |Table cell contents |Table cell contents |Table cell contents |Table cell contents |Table cell contents |Table cell contents |
-|Table cell contents |Table cell contents |Table cell contents |Table cell contents |Table cell contents |Table cell contents |Table cell contents |
-|Table cell contents |Table cell contents |Table cell contents |Table cell contents |Table cell contents |Table cell contents |Table cell contents |
-|Table cell contents |Table cell contents |Table cell contents |Table cell contents |Table cell contents |Table cell contents |Table cell contents |
-|Table cell contents |Table cell contents |Table cell contents |Table cell contents |Table cell contents |Table cell contents |Table cell contents |
-|Table cell contents |Table cell contents |Table cell contents |Table cell contents |Table cell contents |Table cell contents |Table cell contents |
-|Table cell contents |Table cell contents |Table cell contents |Table cell contents |Table cell contents |Table cell contents |Table cell contents |
 
 
 ## Alerts
