@@ -1,10 +1,10 @@
 # Site settings
-title: Jekyll GitBook Theme Demo Site
-email: adam@adamrehn.com
+title: Apensia's Devblog
+email: apensia914@gmail.com
 description: Demo site for the GitBook-inspired documentation theme for Jekyll
-url: "https://adamrehn.github.io"
+url: "https://donghhan.github.io"
 baseurl: "/jekyll-theme-gitbook-demo"
-timezone: Australia/Brisbane
+timezone: Asia/Seoul
 
 # Build settings
 remote_theme: adamrehn/jekyll-theme-gitbook@v0.0.1
@@ -50,9 +50,9 @@ defaults:
       layout: "default"
   -
     scope:
-      path: "_collections/_chapters/first-chapter"
+      path: "_collections/_chapters/knowner-project"
     values:
-      chapter: "First Chapter"
+      chapter: "Knowner"
       chapnum: 1
   -
     scope:

@@ -1,5 +1,5 @@
 ---
-title: Yet another example page
+title: Views
 pagenum: 3
 ---
 
