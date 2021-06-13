@@ -101,8 +101,11 @@ At the very bottom of `settings.py`, include <br>
 AUTH_USER_MODEL = 'users.User'
 ```
 
-{% include alerts/warning.html content="If you don't set AUTH_USER_MODEL, it will throw error" %}
+If you do not include `AUTH_USER_MODEL` as above, then it will throw an error as below: 
 
+> users.User.user_permissions: (fields.E304) Reverse accessor for 'User.user_permissions' clashes with reverse accessor for 'User.user_permissions'.
+
+<!-- {% include alerts/warning.html content="If you don't set AUTH_USER_MODEL, it will throw error of users.User.user_permissions: (fields.E304) error" %} -->
 
 <br>
 
@@ -110,7 +113,7 @@ AUTH_USER_MODEL = 'users.User'
 
 There is another way that we can make user model, which is [`AbstractBaseUser`](https://docs.djangoproject.com/en/3.2/topics/auth/customizing/#django.contrib.auth.models.AbstractBaseUser). `AbstractBaseUser` can be used when we would like to let user login with their email, NOT username. Also, it allows us to develop authentication process other than login. This could be useful when we would like to retrieve user information directly from other projects.<br><br>
 
-However, the cons for using `AbstractBaseUser` is that 
+However, the cons for using `AbstractBaseUser` is that it is very hard to 
 
 ### *products/*
 
@@ -131,7 +134,7 @@ class Product(TimeStampModel):
     ]
 
     product_name = models.CharField(max_length=80, verbose_name='상품이름')
-    product_price = models.DecimalField(max_digits=5, decimal_places=2, verbose_name='상품가격')
+    product_price = models.DecimalField(max_digits=8, decimal_places=2, verbose_name='상품가격')
     product_description = models.TextField(verbose_name='상품설명')
     product_color = models.CharField(max_length=10, verbose_name='색상', null=True, blank=True)
     product_size = models.CharField(max_length=2, verbose_name='사이즈', null=True, blank=True)
@@ -160,8 +163,16 @@ The followings are the description of each model name:<br>
 | `customer`| Whether or not product is new arrival. Linked with [`ForeignKey`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#django.db.models.ForeignKey)| 
 
 
-<del>I was quite confused which model field should I use for `product_price`. According to my research, [`DecimalField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#decimalfield) would be best choice for USD currency[^2]. However, as I was working on KRW currency first, I ended up deciding [`IntegerField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#integerfield).</del><br><br>
-I ended up changing the field with [`DecimalField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#decimalfield) because [`DecimalField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#decimalfield) could also cover the integer number of [`IntegerField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#integerfield). 
+For the `product_price`, I ended up changing the field with [`DecimalField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#decimalfield) because [`DecimalField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#decimalfield) could also cover the integer number of [`IntegerField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#integerfield). 
+
+- `max_digits`: The total number of digits including decimal points (required)
+- `decimal_places`: The number of digits of decimal places (required). 
+
+If you put bigger number that exceeds the `max_digits`, then Django will throw error as below:
+
+> InvalidOperation at /admin/orders/order [<class 'decimal.InvalidOperation'>]
+
+<!-- {% include alerts/warning.html content="If you put bigger number that exceeds the max_digits, then Django will throw InvalidOperation [<class 'decimal.InvalidOperation'>] error." %} -->
 
 <br>
 
