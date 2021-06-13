@@ -3,7 +3,7 @@ title: Apensia's Devblog
 email: apensia914@gmail.com
 description: Demo site for the GitBook-inspired documentation theme for Jekyll
 url: "https://donghhan.github.io"
-baseurl: "/jekyll-theme-gitbook-demo"
+baseurl: "/apensia-devblog"
 timezone: Asia/Seoul
 
 # Build settings
