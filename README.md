@@ -3,7 +3,7 @@
 This is my devblog of my projects. 
 
 ## Built with...
-- Jekyll: [GitBook-inspired documentation theme for Jekyll](https://github.com/adamrehn/jekyll-theme-gitbook){target: _blank}
+- Jekyll: [GitBook-inspired documentation theme for Jekyll](https://github.com/adamrehn/jekyll-theme-gitbook){:target="_blank"}
 - HTML
 - SCSS
 - Markdown 
