@@ -4,7 +4,7 @@ pagenum: 1
 ---
 [Model](https://docs.djangoproject.com/en/3.2/topics/db/models/#module-django.db.models){:target="_blank"} is the way of defining how our data looks like. On the web app, any data that changes will be defined in the models (e.g. price, item name, description, username, etc...)<br><br>
 
-### TimeStampModel
+## TimeStampModel
 
 I believed all model fields should include common data which are __date and time__. For instance, when admin uploaded new products in admin panel, they might want to get information when did they upload the products. It is regardless to say that admin should know when did customer purchase the product they want.<br><br>
 
@@ -39,7 +39,7 @@ Now, I can use `TimeStampModel` in everywhere in each apps' models. To do this, 
 
 <br>
 
-### *users/*
+## *users/*
 
 In `users/` apps, we need to define our user model. Simply put, we can create our own user model inheriting `models.Model` from Django's built-in feature. 
 
@@ -50,6 +50,7 @@ class User(models.Model):
     username = models.CharField(max_length=10)
     ...
 ```
+### Custom user model
 
 Sometimes, however, we may want to customize our own user model. This could be useful when, for instance, we want to make user login(signin) with email address so that they can easily reset password if they lost it.<br><br>
 
@@ -84,6 +85,13 @@ class User(AbstractUser):
     
     language = models.CharField(choices=LANGUAGE_CHOICES, max_length=10, verbose_name='Preferred Language', default=KOREAN)
     currency = models.CharField(choices=CURRENCY_CHOICES, max_length=10, verbose_name='Currency', default=KRW)
+
+    def __str__(self):
+        return self.email
+
+    class Meta: 
+        verbose_name = '사용자'
+        verbose_name_plural = '사용자'
 ```
 <br>
 
@@ -111,13 +119,28 @@ If you do not include `AUTH_USER_MODEL` as above, then it will throw an error as
 
 #### `AbstractBaseUser`
 
-There is another way that we can make user model, which is [`AbstractBaseUser`](https://docs.djangoproject.com/en/3.2/topics/auth/customizing/#django.contrib.auth.models.AbstractBaseUser){:target="_blank"}. [`AbstractBaseUser`](https://docs.djangoproject.com/en/3.2/topics/auth/customizing/#django.contrib.auth.models.AbstractBaseUser){:target="_blank"} only contains the authentication process without actual fields. To view how to make user models with [`AbstractBaseUser`](https://docs.djangoproject.com/en/3.2/topics/auth/customizing/#django.contrib.auth.models.AbstractBaseUser){:target="_blank"}, see this post and refer to *[Extending User Model Using a Custom Model Extending AbstractBaseUser](https://simpleisbetterthancomplex.com/tutorial/2016/07/22/how-to-extend-django-user-model.html){:target="_blank"}*.<br><br>
+There is another way that we can make user model, which is [`AbstractBaseUser`](https://docs.djangoproject.com/en/3.2/topics/auth/customizing/#django.contrib.auth.models.AbstractBaseUser){:target="_blank"}. [`AbstractBaseUser`](https://docs.djangoproject.com/en/3.2/topics/auth/customizing/#django.contrib.auth.models.AbstractBaseUser){:target="_blank"} only contains the authentication process without actual fields. To view how to make user models with [`AbstractBaseUser`](https://docs.djangoproject.com/en/3.2/topics/auth/customizing/#django.contrib.auth.models.AbstractBaseUser){:target="_blank"}[^2]. see this post and refer to.<br><br>
 
 With using [`AbstractBaseUser`](https://docs.djangoproject.com/en/3.2/topics/auth/customizing/#django.contrib.auth.models.AbstractBaseUser){:target="_blank"}, I can change the authentication methods. In this case, we need to setup [`UserManager`](https://docs.djangoproject.com/en/3.2/ref/contrib/auth/#django.contrib.auth.models.UserManager) that is inherited from [`BaseUserManager`]() to determine which users will have normal/admin roles. Also, <br><br>
 
-However, the cons for using [`AbstractBaseUser`](https://docs.djangoproject.com/en/3.2/topics/auth/customizing/#django.contrib.auth.models.AbstractBaseUser){:target="_blank"} is that it is very hard to 
+However, the cons for using [`AbstractBaseUser`](https://docs.djangoproject.com/en/3.2/topics/auth/customizing/#django.contrib.auth.models.AbstractBaseUser){:target="_blank"} is that it is very hard to <br><br>
 
-### *products/*
+
+### Meta class
+
+We can provide more information (or meta data) to our model class by adding [meta class](https://docs.djangoproject.com/en/3.2/topics/db/models/#meta-options) as an inner class.<br><br>
+
+In this case, I added [`verbose_name`](https://docs.djangoproject.com/en/3.2/ref/models/options/#verbose-name) and [`verbose_name_plural`](https://docs.djangoproject.com/en/3.2/ref/models/options/#verbose-name-plural), which I love to use very often, to provide human-readable name of objects. If you put those two [meta options](), you will be able to see that name of class has been changed.<br><br>
+
+
+### `__str__`
+
+[`__str__`](https://docs.djangoproject.com/en/3.2/ref/models/instances/#str) is one of the [model instance methods](https://docs.djangoproject.com/en/3.2/ref/models/instances/#other-model-instance-methods) to display object on the admin site.<br><br>
+
+By adding the [`__str__`](https://docs.djangoproject.com/en/3.2/ref/models/instances/#str) method, we can include the human-readable representation of model from it. This can be used in many different ways.<br><br>
+
+
+## *products/*
 
 Products literally include the information of products. I named model name as `Product`, and it looks as follows: 
 
@@ -172,7 +195,7 @@ The followings are the description of each model name:<br>
 | `customer`| Whether or not product is new arrival. Linked with [`ForeignKey`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#django.db.models.ForeignKey){:target="_blank"}| 
 
 
-For the `product_price`, I ended up changing the field with [`DecimalField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#decimalfield){:target="_blank"} because [`DecimalField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#decimalfield){:target="_blank"} could also cover the integer number of [`IntegerField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#integerfield){:target="_blank"}. 
+For the `product_price`, I ended up changing the field with [`DecimalField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#decimalfield){:target="_blank"} because [`DecimalField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#decimalfield){:target="_blank"} could also cover the integer number of [`IntegerField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#integerfield){:target="_blank"}[^3]. 
 
 - `max_digits`: The total number of digits including decimal points (required)
 - `decimal_places`: The number of digits of decimal places (required). 
@@ -191,7 +214,7 @@ For `is_onsale`, `is_newarrival` and `is_preorder`, I chose [`BooleanField`](htt
 
 Meanwhile, I included the 
 
-### *orders/*
+## *orders/*
 
 Orders are all about information of orders. I named model name as `Order`, and it looks as follows: 
 
@@ -233,29 +256,32 @@ The followings are the description of each model name:<br>
 
 For the `ordered_qty` field, I used [`PositiveIntegerField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#positiveintegerfield){:target="_blank"} because I did not want `ordered_qty` input to be below than 0. Although I will setup in views that users cannot input number below than 0, I just wanted to prevent this from backend side also.<br><br>
 
-Meanwhile, it looks like we need to discuss about the [relationship fields](https://docs.djangoproject.com/en/3.2/ref/models/fields/#module-django.db.models.fields.related) for the first time.<br><br>
+Meanwhile, it looks like we need to discuss about the [relationship fields](https://docs.djangoproject.com/en/3.2/ref/models/fields/#module-django.db.models.fields.related){:target="_blank"} for the first time.<br><br>
 
-[Relationship fields](https://docs.djangoproject.com/en/3.2/ref/models/fields/#module-django.db.models.fields.related) are used when we are to link fields from other models' fields. We need to use different relationship fields based on how the relationship between two models' fields look like.<br><br>
+[Relationship fields](https://docs.djangoproject.com/en/3.2/ref/models/fields/#module-django.db.models.fields.related){:target="_blank"} are used when we are to link fields from other models' fields. We need to use different relationship fields based on how the relationship between two models' fields look like.<br><br>
 
-#### `OneToOneField`
+### `OneToOneField`
 
-As you can literally can tell from its name, [`OneToOneField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#onetoonefield) is used when you would like to link up with one field to another one field. When models are on relationship of "1:1", then [`OneToOneField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#onetoonefield) would be the right choice.<br><br>
+As you can literally can tell from its name, [`OneToOneField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#onetoonefield){:target="_blank"} is used when you would like to link up with one field to another one field. When models are on relationship of "1:1", then [`OneToOneField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#onetoonefield){:target="_blank"} would be the right choice.<br><br>
 
 For instance, in this case, I regarded as `ordered_customer` is as same as the person who is defined in `Shipping` model, and they are all __unique__, which means it can't indicate other people.<br><br>
 
 
-#### `ForeignKey`
+### `ForeignKey`
 
-[`ForeignKey`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#foreignkey) is used when fields are on relationship of "1:N", which means one model field can have multiple model field that is connected with [`ForeignKey`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#foreignkey). For example, one blog post can have multiple comments, but each comments cannot belong to other blog posts. That is, comments cannot be shared with other blog posts.<br><br>
+[`ForeignKey`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#foreignkey){:target="_blank"} is used when fields are on relationship of "1:N", which means one model field can have multiple model field that is connected with [`ForeignKey`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#foreignkey){:target="_blank"}. For example, one blog post can have multiple comments, but each comments cannot belong to other blog posts. That is, comments cannot be shared with other blog posts.<br><br>
 
 In this case, one `User` can have multiple `Order`s if he/she wants. However, that specific `Order` cannot be other `User`'s.<br><br>
 
-`ordered_product` is connected `users.User` using [`ForeignKey`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#foreignkey). Also, I set [`on_delete`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#django.db.models.ForeignKey.on_delete) argument (which is required) as [`CASCADE`](), which means if `User` has been deleted, then its `Order` will also be deleted. 
+`ordered_product` is connected to `users.User` using [`ForeignKey`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#foreignkey){:target="_blank"}. Also, I set [`on_delete`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#django.db.models.ForeignKey.on_delete){:target="_blank"} argument (which is required) as [`models.CASCADE`](), which means if `User` has been deleted, then its `Order` will also be deleted.<br><br>
 
+
+Now that we are finished with making models, let's move on to the next section: admin! 
 
 ## References & Notes
 
 [^1]: Indicates to the 
 
-[^2]: [Which field is best for USD currency?](https://stackoverflow.com/questions/1139393/what-is-the-best-django-model-field-to-use-to-represent-a-us-dollar-amount){:target="_blank"}
+[^2]: [Extending User Model Using a Custom Model Extending AbstractBaseUser](https://simpleisbetterthancomplex.com/tutorial/2016/07/22/how-to-extend-django-user-model.html){:target="_blank"}
 
+[^3]: [Which field is best for USD currency?](https://stackoverflow.com/questions/1139393/what-is-the-best-django-model-field-to-use-to-represent-a-us-dollar-amount){:target="_blank"}
