@@ -111,9 +111,11 @@ If you do not include `AUTH_USER_MODEL` as above, then it will throw an error as
 
 #### `AbstractBaseUser`
 
-There is another way that we can make user model, which is [`AbstractBaseUser`](https://docs.djangoproject.com/en/3.2/topics/auth/customizing/#django.contrib.auth.models.AbstractBaseUser){:target="_blank"}. `AbstractBaseUser` can be used when we would like to let user login with their email, NOT username. Also, it allows us to develop authentication process other than login. This could be useful when we would like to retrieve user information directly from other projects.<br><br>
+There is another way that we can make user model, which is [`AbstractBaseUser`](https://docs.djangoproject.com/en/3.2/topics/auth/customizing/#django.contrib.auth.models.AbstractBaseUser){:target="_blank"}. [`AbstractBaseUser`](https://docs.djangoproject.com/en/3.2/topics/auth/customizing/#django.contrib.auth.models.AbstractBaseUser){:target="_blank"} only contains the authentication process without actual fields. To view how to make user models with [`AbstractBaseUser`](https://docs.djangoproject.com/en/3.2/topics/auth/customizing/#django.contrib.auth.models.AbstractBaseUser){:target="_blank"}, see this post and refer to *[Extending User Model Using a Custom Model Extending AbstractBaseUser](https://simpleisbetterthancomplex.com/tutorial/2016/07/22/how-to-extend-django-user-model.html){:target="_blank"}*.<br><br>
 
-However, the cons for using `AbstractBaseUser` is that it is very hard to 
+With using [`AbstractBaseUser`](https://docs.djangoproject.com/en/3.2/topics/auth/customizing/#django.contrib.auth.models.AbstractBaseUser){:target="_blank"}, I can change the authentication methods. In this case, we need to setup [`UserManager`](https://docs.djangoproject.com/en/3.2/ref/contrib/auth/#django.contrib.auth.models.UserManager) that is inherited from [`BaseUserManager`]() to determine which users will have normal/admin roles. Also, <br><br>
+
+However, the cons for using [`AbstractBaseUser`](https://docs.djangoproject.com/en/3.2/topics/auth/customizing/#django.contrib.auth.models.AbstractBaseUser){:target="_blank"} is that it is very hard to 
 
 ### *products/*
 
@@ -143,6 +145,13 @@ class Product(TimeStampModel):
     is_newarrival = models.BooleanField(verbose_name='신상', default=False)
     is_preorder = models.BooleanField(verbose_name='프리오더', default=False)
     customer = models.ForeignKey('users.User', on_delete=models.SET_NULL, null=True)
+
+    def __str__(self):
+        return f'{self.product_name}: {self.product_price}'
+    
+    class Meta:
+        verbose_name = '상품목록'
+        verbose_name_plural = '상품목록'
 ```
 <br>
 
@@ -170,7 +179,7 @@ For the `product_price`, I ended up changing the field with [`DecimalField`](htt
 
 If you put bigger number that exceeds the `max_digits`, then Django will throw error as below:
 
-> InvalidOperation at /admin/orders/order [<class 'decimal.InvalidOperation'>]
+> *InvalidOperation at /admin/orders/order [<class 'decimal.InvalidOperation'>]*
 
 <!-- {% include alerts/warning.html content="If you put bigger number that exceeds the max_digits, then Django will throw InvalidOperation [<class 'decimal.InvalidOperation'>] error." %} -->
 
@@ -180,27 +189,73 @@ For the `product_description`, I chose [`TextField`](https://docs.djangoproject.
 
 For `is_onsale`, `is_newarrival` and `is_preorder`, I chose [`BooleanField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#booleanfield){:target="_blank"} just to simply show True/False value. These fields will be used in *admin.py* to be shown in admin panel as well.<br><br>
 
+Meanwhile, I included the 
+
+### *orders/*
+
+Orders are all about information of orders. I named model name as `Order`, and it looks as follows: 
+
+```python
+from common.models import TimeStampModel
+
+class Product(TimeStampModel):
+
+    ''' Order Model Definition '''
+
+    # Omitted
+    
+    order_id = models.CharField(max_length=10, verbose_name='주문번호')
+    status = models.CharField(max_length=30, verbose_name='주문상태', choices=STATUS_CHOICES, default=AWAITING_PAYMENT)
+    ordered_customer = models.OneToOneField(Shipping, on_delete=models.CASCADE, verbose_name='주문고객', parent_link=True)
+    ordered_product = models.ForeignKey('products.Product', on_delete=models.CASCADE, verbose_name='주문상품')
+    ordered_qty = models.PositiveIntegerField(verbose_name='주문수량')
+
+    def __str__(self):
+        return str(self.order_id)
+    
+    class Meta:
+        verbose_name = '주문내역'
+        verbose_name_plural = '주문내역'
+```
+<br>
+
+The followings are the description of each model name:<br>
+
+| Field Name| Description | 
+| :--- |    :----   | 
+| `order_id` | Unique ID order number. Linked with [`CharField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#charfield){:target="_blank"}| 
+| `status`| Status of orders. Linked with [`CharField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#charfield){:target="_blank"}| 
+| `ordered_customer`| Customer who placed order. Linked with [`OneToOneField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#onetoonefield){:target="_blank"}| 
+| `ordered_product`| Products that have been ordered. Linked with [`ForeignKey`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#foreignkey){:target="_blank"}| 
+| `ordered_qty`| Size of product. Linked with [`PositiveIntegerField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#positiveintegerfield){:target="_blank"}| 
+
+<br>
+
+For the `ordered_qty` field, I used [`PositiveIntegerField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#positiveintegerfield){:target="_blank"} because I did not want `ordered_qty` input to be below than 0. Although I will setup in views that users cannot input number below than 0, I just wanted to prevent this from backend side also.<br><br>
+
+Meanwhile, it looks like we need to discuss about the [relationship fields](https://docs.djangoproject.com/en/3.2/ref/models/fields/#module-django.db.models.fields.related) for the first time.<br><br>
+
+[Relationship fields](https://docs.djangoproject.com/en/3.2/ref/models/fields/#module-django.db.models.fields.related) are used when we are to link fields from other models' fields. We need to use different relationship fields based on how the relationship between two models' fields look like.<br><br>
+
+#### `OneToOneField`
+
+As you can literally can tell from its name, [`OneToOneField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#onetoonefield) is used when you would like to link up with one field to another one field. When models are on relationship of "1:1", then [`OneToOneField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#onetoonefield) would be the right choice.<br><br>
+
+For instance, in this case, I regarded as `ordered_customer` is as same as the person who is defined in `Shipping` model, and they are all __unique__, which means it can't indicate other people.<br><br>
+
+
 #### `ForeignKey`
 
-`customer` field literally means customer who purchased the products. This `customer` is not different from the user that is defined in `User` model in previous section. Therefore, I needed to connect them together, which could be done by using [`ForeignKey`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#foreignkey){:target="_blank"}.<br><br>
+[`ForeignKey`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#foreignkey) is used when fields are on relationship of "1:N", which means one model field can have multiple model field that is connected with [`ForeignKey`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#foreignkey). For example, one blog post can have multiple comments, but each comments cannot belong to other blog posts. That is, comments cannot be shared with other blog posts.<br><br>
 
-Relation between `Product` and `User` is as follows:
-- `User` can have many `Products`. 
-- However, `Products` cannot have many `Users`.
+In this case, one `User` can have multiple `Order`s if he/she wants. However, that specific `Order` cannot be other `User`'s.<br><br>
 
-
-
-
-## Alerts
-
-These custom alerts ship with the theme, but you can also use the [alert classes provided by Bootstrap](https://getbootstrap.com/docs/4.5/components/alerts/){:target="_blank"} if you prefer those instead.
-
-
-
-
+`ordered_product` is connected `users.User` using [`ForeignKey`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#foreignkey). Also, I set [`on_delete`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#django.db.models.ForeignKey.on_delete) argument (which is required) as [`CASCADE`](), which means if `User` has been deleted, then its `Order` will also be deleted. 
 
 
 ## References & Notes
-[^1]: Indicates how you will be able to 
+
+[^1]: Indicates to the 
+
 [^2]: [Which field is best for USD currency?](https://stackoverflow.com/questions/1139393/what-is-the-best-django-model-field-to-use-to-represent-a-us-dollar-amount){:target="_blank"}
 
