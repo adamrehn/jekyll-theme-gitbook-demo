@@ -128,16 +128,16 @@ However, the cons for using [`AbstractBaseUser`](https://docs.djangoproject.com/
 
 ### Meta class
 
-We can provide more information (or meta data) to our model class by adding [meta class](https://docs.djangoproject.com/en/3.2/topics/db/models/#meta-options) as an inner class.<br><br>
+We can provide more information (or meta data) to our model class by adding [meta class](https://docs.djangoproject.com/en/3.2/topics/db/models/#meta-options){:target="_blank"} as an inner class.<br><br>
 
-In this case, I added [`verbose_name`](https://docs.djangoproject.com/en/3.2/ref/models/options/#verbose-name) and [`verbose_name_plural`](https://docs.djangoproject.com/en/3.2/ref/models/options/#verbose-name-plural), which I love to use very often, to provide human-readable name of objects. If you put those two [meta options](), you will be able to see that name of class has been changed.<br><br>
+In this case, I added [`verbose_name`](https://docs.djangoproject.com/en/3.2/ref/models/options/#verbose-name){:target="_blank"} and [`verbose_name_plural`](https://docs.djangoproject.com/en/3.2/ref/models/options/#verbose-name-plural){:target="_blank"}, which I love to use very often, to provide human-readable name of objects. If you put those two [meta options](), you will be able to see that name of class has been changed.<br><br>
 
 
 ### `__str__`
 
-[`__str__`](https://docs.djangoproject.com/en/3.2/ref/models/instances/#str) is one of the [model instance methods](https://docs.djangoproject.com/en/3.2/ref/models/instances/#other-model-instance-methods) to display object on the admin site.<br><br>
+[`__str__`](https://docs.djangoproject.com/en/3.2/ref/models/instances/#str){:target="_blank"} is one of the [model instance methods](https://docs.djangoproject.com/en/3.2/ref/models/instances/#other-model-instance-methods){:target="_blank"} to display object on the admin site.<br><br>
 
-By adding the [`__str__`](https://docs.djangoproject.com/en/3.2/ref/models/instances/#str) method, we can include the human-readable representation of model from it. This can be used in many different ways.<br><br>
+By adding the [`__str__`](https://docs.djangoproject.com/en/3.2/ref/models/instances/#str){:target="_blank"} method, we can include the human-readable representation of model from it. This can be used in many different ways.<br><br>
 
 
 ## *products/*
@@ -212,7 +212,7 @@ For the `product_description`, I chose [`TextField`](https://docs.djangoproject.
 
 For `is_onsale`, `is_newarrival` and `is_preorder`, I chose [`BooleanField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#booleanfield){:target="_blank"} just to simply show True/False value. These fields will be used in *admin.py* to be shown in admin panel as well.<br><br>
 
-Meanwhile, I included the 
+Meanwhile, I included the [`__str__`](https://docs.djangoproject.com/en/3.2/ref/models/instances/#str){:target="_blank"} model instance method as I did in `users/` part above.
 
 ## *orders/*
 
@@ -250,7 +250,7 @@ The followings are the description of each model name:<br>
 | `status`| Status of orders. Linked with [`CharField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#charfield){:target="_blank"}| 
 | `ordered_customer`| Customer who placed order. Linked with [`OneToOneField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#onetoonefield){:target="_blank"}| 
 | `ordered_product`| Products that have been ordered. Linked with [`ForeignKey`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#foreignkey){:target="_blank"}| 
-| `ordered_qty`| Size of product. Linked with [`PositiveIntegerField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#positiveintegerfield){:target="_blank"}| 
+| `ordered_qty`| Total quantity that customer ordered. Linked with [`PositiveIntegerField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#positiveintegerfield){:target="_blank"}| 
 
 <br>
 
@@ -273,7 +273,7 @@ For instance, in this case, I regarded as `ordered_customer` is as same as the p
 
 In this case, one `User` can have multiple `Order`s if he/she wants. However, that specific `Order` cannot be other `User`'s.<br><br>
 
-`ordered_product` is connected to `users.User` using [`ForeignKey`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#foreignkey){:target="_blank"}. Also, I set [`on_delete`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#django.db.models.ForeignKey.on_delete){:target="_blank"} argument (which is required) as [`models.CASCADE`](), which means if `User` has been deleted, then its `Order` will also be deleted.<br><br>
+`ordered_product` is connected to `users.User` using [`ForeignKey`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#foreignkey){:target="_blank"}. Also, I set [`on_delete`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#django.db.models.ForeignKey.on_delete){:target="_blank"} argument (which is required) as [`models.CASCADE`](), which means if `User` has been deleted, then its `Order` will also be deleted.<br><br><br><br>
 
 
 Now that we are finished with making models, let's move on to the next section: admin! 
