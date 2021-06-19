@@ -128,9 +128,15 @@ However, the cons for using [`AbstractBaseUser`](https://docs.djangoproject.com/
 
 ### Meta class
 
-We can provide more information (or meta data) to our model class by adding [meta class](https://docs.djangoproject.com/en/3.2/topics/db/models/#meta-options){:target="_blank"} as an inner class.<br><br>
+We can provide more information (or meta data) to our model class by adding [meta class](https://docs.djangoproject.com/en/3.2/topics/db/models/#meta-options){:target="_blank"} as an inner class. I included the following options.<br><br>
 
-In this case, I added [`verbose_name`](https://docs.djangoproject.com/en/3.2/ref/models/options/#verbose-name){:target="_blank"} and [`verbose_name_plural`](https://docs.djangoproject.com/en/3.2/ref/models/options/#verbose-name-plural){:target="_blank"}, which I love to use very often, to provide human-readable name of objects. If you put those two [meta options](), you will be able to see that name of class has been changed.<br><br>
+#### `verbose_name`
+
+[`verbose_name`](https://docs.djangoproject.com/en/3.2/ref/models/options/#verbose-name){:target="_blank"} provides the human-readable name of objects.<br><br>
+
+#### `verbose_name_plural` 
+
+[`verbose_name_plural`](https://docs.djangoproject.com/en/3.2/ref/models/options/#verbose-name-plural){:target="_blank"}, which I love to use very often, to provide human-readable name of objects. If you put those two [meta options](), you will be able to see that name of class has been changed.<br><br>
 
 
 ### `__str__`
@@ -138,6 +144,8 @@ In this case, I added [`verbose_name`](https://docs.djangoproject.com/en/3.2/ref
 [`__str__`](https://docs.djangoproject.com/en/3.2/ref/models/instances/#str){:target="_blank"} is one of the [model instance methods](https://docs.djangoproject.com/en/3.2/ref/models/instances/#other-model-instance-methods){:target="_blank"} to display object on the admin site.<br><br>
 
 By adding the [`__str__`](https://docs.djangoproject.com/en/3.2/ref/models/instances/#str){:target="_blank"} method, we can include the human-readable representation of model from it. This can be used in many different ways.<br><br>
+
+In this case, I chose `email` to be displayed. 
 
 
 ## *products/*
@@ -213,6 +221,28 @@ For the `product_description`, I chose [`TextField`](https://docs.djangoproject.
 For `is_onsale`, `is_newarrival` and `is_preorder`, I chose [`BooleanField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#booleanfield){:target="_blank"} just to simply show True/False value. These fields will be used in *admin.py* to be shown in admin panel as well.<br><br>
 
 Meanwhile, I included the [`__str__`](https://docs.djangoproject.com/en/3.2/ref/models/instances/#str){:target="_blank"} model instance method as I did in `users/` part above.
+<br><br>
+
+### `save()` method
+
+For the `product_color` and `product_size`, when admin put data in English, I wanted data to be saved in uppercase letters so that admin can distinguish clearly.<br><br>
+
+In order to do this, I used [overriding predefined model methods](https://docs.djangoproject.com/en/2.2/topics/db/models/#overriding-predefined-model-methods){:target="_blank"} and used [`save()`](https://docs.djangoproject.com/en/2.2/ref/models/instances/#django.db.models.Model.save){:target="_blank"}([<span style="font-style: italic; font-weight: bold; color: #e83e8b;">source</span>](https://docs.djangoproject.com/en/2.2/_modules/django/db/models/base/#Model.save){:target="_blank"}) method.<br><br>
+
+Unlike when you [make changes and save in admin model](https://docs.djangoproject.com/en/2.2/ref/contrib/admin/#django.contrib.admin.ModelAdmin.save_model){:target="_blank"}([<span style="font-style: italic; font-weight: bold; color: #e83e8b;">source</span>](https://docs.djangoproject.com/en/2.2/_modules/django/contrib/admin/options/#ModelAdmin.save_model){:target="_blank"}), making changes in models will affect all aspects including admin panel, views, console and etc.<br><br>
+
+I added the following code more below the `Product` model and above `__str__` method.<br>
+```python
+def save(self, *args, **kwargs):
+    self.product_color = str.upper(self.product_color)
+    self.product_size = str.upper(self.product_size)
+    super().save(*args, **kwargs)
+```
+<br>
+
+With using `str.upper()` method, I made `product_color` and `product_size` should always be uppercase letters.<br><br>
+
+Moreover, I used `super().save(*args, **kwrags)`[^4] as exactly shown in Django documentation so that any changes made on models could be saved in admin panel as well. 
 
 ## *orders/*
 
@@ -285,3 +315,5 @@ Now that we are finished with making models, let's move on to the next section: 
 [^2]: [Extending User Model Using a Custom Model Extending AbstractBaseUser](https://simpleisbetterthancomplex.com/tutorial/2016/07/22/how-to-extend-django-user-model.html){:target="_blank"}
 
 [^3]: [Which field is best for USD currency?](https://stackoverflow.com/questions/1139393/what-is-the-best-django-model-field-to-use-to-represent-a-us-dollar-amount){:target="_blank"}
+
+[^4]: See this [post](https://stackoverflow.com/questions/576169/understanding-python-super-with-init-methods){:target="_blank"} for more information about `super()` in Python.
