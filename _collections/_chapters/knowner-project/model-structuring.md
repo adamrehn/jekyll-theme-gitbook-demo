@@ -130,13 +130,9 @@ However, the cons for using [`AbstractBaseUser`](https://docs.djangoproject.com/
 
 We can provide more information (or meta data) to our model class by adding [meta class](https://docs.djangoproject.com/en/3.2/topics/db/models/#meta-options){:target="_blank"} as an inner class. I included the following options.<br><br>
 
-#### `verbose_name`
+1. [`verbose_name`](https://docs.djangoproject.com/en/3.2/ref/models/options/#verbose-name){:target="_blank"} provides the human-readable name of objects.<br><br>
 
-[`verbose_name`](https://docs.djangoproject.com/en/3.2/ref/models/options/#verbose-name){:target="_blank"} provides the human-readable name of objects.<br><br>
-
-#### `verbose_name_plural` 
-
-[`verbose_name_plural`](https://docs.djangoproject.com/en/3.2/ref/models/options/#verbose-name-plural){:target="_blank"}, which I love to use very often, to provide human-readable name of objects. If you put those two [meta options](), you will be able to see that name of class has been changed.<br><br>
+2. [`verbose_name_plural`](https://docs.djangoproject.com/en/3.2/ref/models/options/#verbose-name-plural){:target="_blank"}, which I love to use very often, to provide human-readable name of objects. If you put those two [meta options](), you will be able to see that name of class has been changed.<br><br>
 
 
 ### `__str__`
@@ -150,7 +146,11 @@ In this case, I chose `email` to be displayed.
 
 ## *products/*
 
-Products literally include the information of products. I named model name as `Product`, and it looks as follows: 
+### `Product` Model
+
+In `*products/*` app, there are two models which are: `Product` model and `Photo` model.<br><br>
+
+To begin with, `Product` model literally contains the information of all products that admin include in their database. It looks as follows:
 
 ```python
 from common.models import TimeStampModel
@@ -223,6 +223,59 @@ For `is_onsale`, `is_newarrival` and `is_preorder`, I chose [`BooleanField`](htt
 Meanwhile, I included the [`__str__`](https://docs.djangoproject.com/en/3.2/ref/models/instances/#str){:target="_blank"} model instance method as I did in `users/` part above.
 <br><br>
 
+### `Photo` Model
+
+`Photo` model contains images of products. I created `Photo` model as follows:
+
+```python 
+class Photo(TimeStampModel):
+
+    ''' Photo Model Definition ''' 
+
+    caption = models.CharField(max_length=50, verbose_name='사진캡션')
+    file = models.ImageField(upload_to="product_photo")
+    product = models.ForeignKey('Product', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.caption
+    
+    class Meta:
+        verbose_name = '상품사진'
+        verbose_name_plural = '상품사진'
+```
+<br>
+
+The followings are the description of each model name:<br>
+
+| Field Name| Description | 
+| :--- |    :----   | 
+| `caption` | Caption of photo. Linked with [`CharField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#charfield){:target="_blank"}| 
+| `file`| File(image) of product. Linked with [`ImageField`](https://docs.djangoproject.com/en/2.2/ref/models/fields/#imagefield){:target="_blank"}| 
+| `product`| Product to which photo is linked. Linked with [`ForeignKey`](https://docs.djangoproject.com/en/2.2/ref/models/fields/#foreignkey){:target="_blank"}| 
+
+For `file` field, as it is obviously need to be an image, I used [`ImageField`](https://docs.djangoproject.com/en/2.2/ref/models/fields/#imagefield){:target="_blank"}. 
+
+{% include alerts/info.html content="In order to use ImageField, you need to install pillow package." %}
+
+I also 
+
+In order to tell `Photo` model is linked up to which product, I made `product` field and linked it up with `Product` model with [`ForeignKey`](https://docs.djangoproject.com/en/2.2/ref/models/fields/#foreignkey){:target="_blank"}. [`ForeignKey`](https://docs.djangoproject.com/en/2.2/ref/models/fields/#foreignkey){:target="_blank"} is one of the relationship fields that connects one model field to the other model field, and it is normally used when each model fields are in relationship of __1:N__.<br><br>
+
+For example, `product` can have many `photo`s of itself. However, that specific `photo`s should always belong to only one `product`. In other words, photo of product A cannot also be a photo of product B.<br><br>
+
+These are my arugments setting:
+- *`to`*: `'Product'`
+- *`on_delete`*: `models.CASCADE`
+
+As Python always read from top to bottom, if `Photo` model is placed below the `Product` model, then it will give us error as below:
+
+> (fields.E300) Field defines a relation with model which is either not installed, or is abstract
+
+Therefore, I linked up as a string value of `Product` model so that `product` field in `Photo` model can find `Product` no matter which place it is located.<br><br>
+
+Also, if we delete `Product` it may well `Photo` should be deleted. Thus, I used [`models.CASCADE`](https://docs.djangoproject.com/en/2.2/ref/models/fields/#django.db.models.CASCADE){:target="_blank"}. 
+
+
 ### `save()` method
 
 For the `product_color` and `product_size`, when admin put data in English, I wanted data to be saved in uppercase letters so that admin can distinguish clearly.<br><br>
@@ -244,31 +297,56 @@ With using `str.upper()` method, I made `product_color` and `product_size` shoul
 
 Moreover, I used `super().save(*args, **kwrags)`[^4] as exactly shown in Django documentation so that any changes made on models could be saved in admin panel as well. 
 
+
+
+
+
 ## *orders/*
 
-Orders are all about information of orders. I named model name as `Order`, and it looks as follows: 
+Orders are all about information of orders. `orders/` app consists of `Order` model and `ShippingAddress` model. 
+
+### `Order` Model
+
+I named model name as `Order`, and it looks as follows: 
 
 ```python
-from common.models import TimeStampModel
-
-class Product(TimeStampModel):
+class Order(TimeStampModel, ShippingAddress):
 
     ''' Order Model Definition '''
 
-    # Omitted
+    ORDER_CANCELED = 'Order Canceled'
+    # Payment Status
+    AWAITING_PAYMENT = 'Awaiting Payment'
+    PAYMENT_SUCCESSFUL = 'Payment Successful'
+    PAYMENT_FAILED = 'Payment failed'
+    # Release Status
+    IS_RELEASING = 'Preparing for release from stock'
+    RELEASE_SUCCESSFUL = 'Release preparing finished'
+    # Shipment Status
+    READY_FOR_SHIPMENT = 'Ready for Shipment'
+    IS_SHIPPING = 'Shipment on the way'
+    SHIPMENT_SUCCESSFUL = 'Shipment Successful'
+    # Post-Purchase Status
+    REQUEST_EXCHANGE = 'Exchange request'
+    REQUEST_REFUND = 'Refund request'
+    STATUS_CHOICES = [
+        (ORDER_CANCELED, '주문취소'),
+        (AWAITING_PAYMENT, '결제대기중'),
+        (PAYMENT_SUCCESSFUL, '결제완료'),
+        (PAYMENT_FAILED, '결제실패'),
+        (IS_RELEASING, '출고준비중'),
+        (RELEASE_SUCCESSFUL, '출고준비완료'),
+        (READY_FOR_SHIPMENT, '배송준비중'),
+        (IS_SHIPPING, '배송중'),
+        (SHIPMENT_SUCCESSFUL, '배송완료'),
+        (REQUEST_EXCHANGE, '교환요청'),
+        (REQUEST_REFUND, '환불요청'),
+    ]
     
-    order_id = models.CharField(max_length=10, verbose_name='주문번호')
     status = models.CharField(max_length=30, verbose_name='주문상태', choices=STATUS_CHOICES, default=AWAITING_PAYMENT)
-    ordered_customer = models.OneToOneField(Shipping, on_delete=models.CASCADE, verbose_name='주문고객', parent_link=True)
-    ordered_product = models.ForeignKey('products.Product', on_delete=models.CASCADE, verbose_name='주문상품')
+    ordered_customer = models.ForeignKey('users.User', on_delete=models.CASCADE, verbose_name='주문고객', null=True)
+    ordered_product = models.ForeignKey('products.Product', on_delete=models.CASCADE, verbose_name='주문상품', null=True)
     ordered_qty = models.PositiveIntegerField(verbose_name='주문수량')
-
-    def __str__(self):
-        return str(self.order_id)
-    
-    class Meta:
-        verbose_name = '주문내역'
-        verbose_name_plural = '주문내역'
 ```
 <br>
 
@@ -276,41 +354,79 @@ The followings are the description of each model name:<br>
 
 | Field Name| Description | 
 | :--- |    :----   | 
-| `order_id` | Unique ID order number. Linked with [`CharField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#charfield){:target="_blank"}| 
 | `status`| Status of orders. Linked with [`CharField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#charfield){:target="_blank"}| 
-| `ordered_customer`| Customer who placed order. Linked with [`OneToOneField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#onetoonefield){:target="_blank"}| 
+| `ordered_customer`| Customer who placed order. Linked with [`ForeignKey`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#foreignkey){:target="_blank"}| 
 | `ordered_product`| Products that have been ordered. Linked with [`ForeignKey`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#foreignkey){:target="_blank"}| 
 | `ordered_qty`| Total quantity that customer ordered. Linked with [`PositiveIntegerField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#positiveintegerfield){:target="_blank"}| 
 
 <br>
 
-For the `ordered_qty` field, I used [`PositiveIntegerField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#positiveintegerfield){:target="_blank"} because I did not want `ordered_qty` input to be below than 0. Although I will setup in views that users cannot input number below than 0, I just wanted to prevent this from backend side also.<br><br>
-
-Meanwhile, it looks like we need to discuss about the [relationship fields](https://docs.djangoproject.com/en/3.2/ref/models/fields/#module-django.db.models.fields.related){:target="_blank"} for the first time.<br><br>
+For the `status` field, I used [`CharField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#charfield){:target="_blank"} with linking [`choices`](https://docs.djangoproject.com/en/2.2/ref/models/fields/#choices){:target="_blank"}.<br><br>
 
 [Relationship fields](https://docs.djangoproject.com/en/3.2/ref/models/fields/#module-django.db.models.fields.related){:target="_blank"} are used when we are to link fields from other models' fields. We need to use different relationship fields based on how the relationship between two models' fields look like.<br><br>
-
-### `OneToOneField`
-
-As you can literally can tell from its name, [`OneToOneField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#onetoonefield){:target="_blank"} is used when you would like to link up with one field to another one field. When models are on relationship of "1:1", then [`OneToOneField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#onetoonefield){:target="_blank"} would be the right choice.<br><br>
-
-For instance, in this case, I regarded as `ordered_customer` is as same as the person who is defined in `Shipping` model, and they are all __unique__, which means it can't indicate other people.<br><br>
-
-
-### `ForeignKey`
 
 [`ForeignKey`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#foreignkey){:target="_blank"} is used when fields are on relationship of "1:N", which means one model field can have multiple model field that is connected with [`ForeignKey`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#foreignkey){:target="_blank"}. For example, one blog post can have multiple comments, but each comments cannot belong to other blog posts. That is, comments cannot be shared with other blog posts.<br><br>
 
 In this case, one `User` can have multiple `Order`s if he/she wants. However, that specific `Order` cannot be other `User`'s.<br><br>
 
-`ordered_product` is connected to `users.User` using [`ForeignKey`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#foreignkey){:target="_blank"}. Also, I set [`on_delete`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#django.db.models.ForeignKey.on_delete){:target="_blank"} argument (which is required) as [`models.CASCADE`](), which means if `User` has been deleted, then its `Order` will also be deleted.<br><br><br><br>
+`ordered_product` is connected to `users.User` using [`ForeignKey`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#foreignkey){:target="_blank"}. Also, I set [`on_delete`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#django.db.models.ForeignKey.on_delete){:target="_blank"} argument (which is required) as [`models.CASCADE`](), which means if `User` has been deleted, then its `Order` will also be deleted.<br><br>
+
+For the `ordered_qty` field, I used [`PositiveIntegerField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#positiveintegerfield){:target="_blank"} because I did not want `ordered_qty` input to be below than 0. Although I will setup in views that users cannot input number below than 0, I just wanted to prevent this from backend side also.<br><br>
+
+### `ShippingAddress` Model
+
+`ShippingAddress` model is , and it looks as follows: 
+
+```python
+class ShippingAddress(models.Model):
+
+    ''' ShippingAddress Model Definition ''' 
+
+    name = models.CharField(max_length=200, verbose_name='수신인 이름')
+    phone_number = models.CharField(max_length=20, verbose_name='전화번호')
+    main_address = models.CharField(max_length=120, verbose_name='메인주소')
+    optional_address1 = models.CharField(max_length=120, verbose_name='상세주소1', null=True, blank=True)
+    optional_address2 = models.CharField(max_length=120, verbose_name='상세주소2', null=True, blank=True)
+    city = models.CharField(max_length=60, verbose_name='도시명')
+    state = models.CharField(max_length=10, verbose_name='주', null=True, blank=True)
+    country = CountryField(blank_label='(select country)')
+    zipcode = models.CharField(max_length=10, verbose_name='우편번호')
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = '배송지주소'
+        verbose_name_plural = '배송지주소'
+```
+<br>
+
+And below are the fields explanation.<br>
+
+| Field Name| Description | 
+| :--- |    :----   | 
+| `name`| Name of ordered customer. Linked with [`CharField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#charfield){:target="_blank"}| 
+| `phone_number`| Phone number of ordered customer. Linked with [`CharField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#charfield){:target="_blank"}| 
+| `main_address`| Main address of ordered customer. Linked with [`CharField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#charfield){:target="_blank"}| 
+| `optional_address1`| The first optional address of ordered customer. Linked with [`CharField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#charfield){:target="_blank"}| 
+| `optional_address2`| The second optional address of ordered customer. Linked with [`CharField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#charfield){:target="_blank"}|
+| `city`| City in which customer living. Linked with [`CharField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#charfield){:target="_blank"}|
+| `state`| State in which customer living. Linked with [`CharField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#charfield){:target="_blank"}|
+| `country`| Country in which customer living. Linked with [`CharField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#charfield){:target="_blank"}|
+| `zipcode`| Zipcode of which customer living. Linked with [`CharField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#charfield){:target="_blank"}|
+
+<br>
+
+For the `optional_address1`, `optional_address2` and `state` fields as NOT required.<br><br>
+
+
 
 
 Now that we are finished with making models, let's move on to the next section: admin! 
 
-## References & Notes
 
-[^1]: Indicates to the 
+
+[^1]: Indicates to the right place to study. 
 
 [^2]: [Extending User Model Using a Custom Model Extending AbstractBaseUser](https://simpleisbetterthancomplex.com/tutorial/2016/07/22/how-to-extend-django-user-model.html){:target="_blank"}
 

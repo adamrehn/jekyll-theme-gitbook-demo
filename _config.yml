@@ -18,6 +18,9 @@ sass:
 # Only needed for local development, will be enabled automatically by GitHub Pages
 plugins: ["jekyll-remote-theme"]
 
+# Conversion markdown: redcarpet 
+highlighter: rouge
+
 # Theme settings
 theme-settings:
   
