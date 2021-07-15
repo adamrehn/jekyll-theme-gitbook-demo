@@ -1,6 +1,6 @@
 ---
 title: i18n
-pagenum: 3
+pagenum: 5
 ---
 
 This is an example page demonstrating various types of content and their interactions with the features provided by the theme.

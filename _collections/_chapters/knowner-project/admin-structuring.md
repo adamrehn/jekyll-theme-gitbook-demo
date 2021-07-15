@@ -140,21 +140,31 @@ and then, I included the `PhotoInline` inline admin model inside the `ProductAdm
 
 Additionally, I wanted to include the thumbnail preview feature inside of `ProductAdmin` admin model so that admin can easily figure out which products are those.<br><br>
 
-To do this, I decided to make [custom model methods](https://docs.djangoproject.com/en/2.2/topics/db/models/#model-methods){:target="_blank"} to provide thumbnail pictures, so that those could be used in different areas.<br><br>
+To do this, I decided to make [custom function methods inside of Model](https://docs.djangoproject.com/en/2.2/topics/db/models/#model-methods){:target="_blank"} to provide thumbnail pictures, so that those could be used in different areas. If I make [custom function method](https://docs.djangoproject.com/en/2.2/topics/db/models/#model-methods){:target="_blank"} inside the Model, that means I can manage this method in anywhere such as admin, model, console and etc.<br><br>
 
 I made the [custom model method](https://docs.djangoproject.com/en/2.2/topics/db/models/#model-methods){:target="_blank"} function naming as `thumbnail_preview` and included inside the `models.py` of `products/`. 
 
 ```python
 def thumbnail_preview(self):
     from django.utils.safestring import mark_safe
-    return mark_safe(f'<img src={self.file.url} width=40% />')
+    return mark_safe(f'<img src={self.images.url} width=40% />')
 thumbnail_preview.short_description = '미리보기'
 ```
 <br>
 
 Firstly, I imported [`mark_safe()`](https://docs.djangoproject.com/en/2.2/ref/utils/#django.utils.safestring.mark_safe){:target="_blank"} method. [`mark_safe()`](https://docs.djangoproject.com/en/2.2/ref/utils/#django.utils.safestring.mark_safe){:target="_blank"} provides us with HTTP url of objects in "safe" way so that Django won't be confused with fake url address. In this case, I inserted `<img>` tag with connecting `src` attribute to `file.url` to catch the image url that I uploaded in my admin.<br><br>
 
-And then I included my [custom model method](https://docs.djangoproject.com/en/2.2/topics/db/models/#model-methods){:target="_blank"} into my `PhotoInline` as [`readonly_fields`](https://docs.djangoproject.com/en/2.2/ref/contrib/admin/#django.contrib.admin.ModelAdmin.readonly_fields){:target="_blank"}.
+And then I included my [custom model method](https://docs.djangoproject.com/en/2.2/topics/db/models/#model-methods){:target="_blank"} into my `PhotoInline` as [`readonly_fields`](https://docs.djangoproject.com/en/2.2/ref/contrib/admin/#django.contrib.admin.ModelAdmin.readonly_fields){:target="_blank"} as follows:
+
+```python
+class PhotoInline(admin.TabularInline):
+
+    ''' PhotoAdmin Definition ''' 
+
+    model = models.Photo
+    readonly_fields = ('thumbnail_preview',)
+    extra = 1
+```
 
 <br>
 

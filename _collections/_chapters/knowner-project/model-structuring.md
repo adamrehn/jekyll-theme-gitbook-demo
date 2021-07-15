@@ -8,7 +8,7 @@ pagenum: 1
 
 I believed all model fields should include common data which are __date and time__. For instance, when admin uploaded new products in admin panel, they might want to get information when did they upload the products. It is regardless to say that admin should know when did customer purchase the product they want.<br><br>
 
-Thus, I decided to create `TimeStampModel` in `commons/` app, so that I can use this model that can be shared with all models in each apps. Fields that are included in `TimeStampModel` are:<br>
+Thus, I decided to create `TimeStampModel` in __*commons/*__ app, so that I can use this model that can be shared with all models in each apps. Fields that are included in `TimeStampModel` are:<br>
 
 1. `created`: This is the field that shows when item was __created__. This is created with [`DateTimeField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#datetimefield){:target="_blank"}. For the field option, [`auto_now_add`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#django.db.models.DateField.auto_now_add){:target="_blank"} is connected.<br>
 
@@ -35,7 +35,7 @@ Meanwhile, I did not want to upload `created` and `updated` information into my 
 
 Now, I can use `TimeStampModel` in everywhere in each apps' models. To do this, I could simply include the code `from commons.models import TimeStampModel` at the very top of each apps' models.
 
-{% include alerts/info.html content="Comment '''{ModelName} Definition ''' is the conventional way to notify people with model definition." %}
+<!-- {% include alerts/info.html content="Comment '''{ModelName} Definition ''' is the conventional way to notify people with model definition." %} -->
 
 <br>
 
@@ -52,7 +52,7 @@ class User(models.Model):
 ```
 ### Custom user model
 
-Sometimes, however, we may want to customize our own user model. This could be useful when, for instance, we want to make user login(signin) with email address so that they can easily reset password if they lost it.<br><br>
+Sometimes, however, we may want to [customize our own user model](https://docs.djangoproject.com/en/2.2/topics/auth/customizing/#substituting-a-custom-user-model){:target="_blank"}. This could be useful when, for instance, we want to make user login(signin) with email address so that they can easily reset password if they lost it.<br><br>
 
 
 #### `AbstractUser`
@@ -83,15 +83,8 @@ class User(AbstractUser):
         (USD, 'US Dollar')
     ]
     
-    language = models.CharField(choices=LANGUAGE_CHOICES, max_length=10, verbose_name='Preferred Language', default=KOREAN)
-    currency = models.CharField(choices=CURRENCY_CHOICES, max_length=10, verbose_name='Currency', default=KRW)
-
-    def __str__(self):
-        return self.email
-
-    class Meta: 
-        verbose_name = '사용자'
-        verbose_name_plural = '사용자'
+    language = models.CharField(choices=LANGUAGE_CHOICES, max_length=10, verbose_name='언어', default=KOREAN)
+    currency = models.CharField(choices=CURRENCY_CHOICES, max_length=10, verbose_name='통화', default=KRW)
 ```
 <br>
 
@@ -102,9 +95,9 @@ I also included few more fields which are `language` and `currency`. This is bec
 
 <br>
 
-After including the `AbstractUser`, however, make sure you need to include `AUTH_USER_MODEL` in `settings.py`. This will help you override[^1] the <br><br>
+After including the `AbstractUser`, however, make sure you need to include `AUTH_USER_MODEL` in `settings.py`. This will help you override[^1] the default user model.<br><br>
 
-At the very bottom of `settings.py`, include <br>
+At the very bottom of `settings.py`, I included<br>
 ```python
 AUTH_USER_MODEL = 'users.User'
 ```
@@ -125,32 +118,50 @@ With using [`AbstractBaseUser`](https://docs.djangoproject.com/en/3.2/topics/aut
 
 However, the cons for using [`AbstractBaseUser`](https://docs.djangoproject.com/en/3.2/topics/auth/customizing/#django.contrib.auth.models.AbstractBaseUser){:target="_blank"} is that it is very hard to <br><br>
 
-
-### Meta class
-
-We can provide more information (or meta data) to our model class by adding [meta class](https://docs.djangoproject.com/en/3.2/topics/db/models/#meta-options){:target="_blank"} as an inner class. I included the following options.<br><br>
-
-1. [`verbose_name`](https://docs.djangoproject.com/en/3.2/ref/models/options/#verbose-name){:target="_blank"} provides the human-readable name of objects.<br><br>
-
-2. [`verbose_name_plural`](https://docs.djangoproject.com/en/3.2/ref/models/options/#verbose-name-plural){:target="_blank"}, which I love to use very often, to provide human-readable name of objects. If you put those two [meta options](), you will be able to see that name of class has been changed.<br><br>
-
-
 ### `__str__`
 
-[`__str__`](https://docs.djangoproject.com/en/3.2/ref/models/instances/#str){:target="_blank"} is one of the [model instance methods](https://docs.djangoproject.com/en/3.2/ref/models/instances/#other-model-instance-methods){:target="_blank"} to display object on the admin site.<br><br>
+[`__str__`](https://docs.djangoproject.com/en/3.2/ref/models/instances/#str){:target="_blank"} is one of the [model instance methods](https://docs.djangoproject.com/en/3.2/ref/models/instances/#other-model-instance-methods){:target="_blank"} to display object on the admin site.<br>
+
+```python
+    def __str__(self):
+        return self.email
+```
+<br>
 
 By adding the [`__str__`](https://docs.djangoproject.com/en/3.2/ref/models/instances/#str){:target="_blank"} method, we can include the human-readable representation of model from it. This can be used in many different ways.<br><br>
 
-In this case, I chose `email` to be displayed. 
+In this case, I chose `email` to be displayed, as it will be used as signin ID.<br><br>
+
+### Meta class
+
+We can provide more information (or meta data) to our model class by adding [meta class](https://docs.djangoproject.com/en/3.2/topics/db/models/#meta-options){:target="_blank"} as an inner class. I included the following options.<br>
+
+```python
+    class Meta: 
+        verbose_name = '사용자'
+        verbose_name_plural = '사용자'
+```
+<br>
+
+1. [`verbose_name`](https://docs.djangoproject.com/en/3.2/ref/models/options/#verbose-name){:target="_blank"}: Provides the human-readable name of objects.
+
+2. [`verbose_name_plural`](https://docs.djangoproject.com/en/3.2/ref/models/options/#verbose-name-plural){:target="_blank"}: Provide human-readable name of plural objects when they have more than two.<br><br>
+
+If you put those two [meta options](), you will be able to see that name of class has been changed.<br><br>
 
 
 ## *products/*
 
 ### `Product` Model
 
-In `*products/*` app, there are two models which are: `Product` model and `Photo` model.<br><br>
+In __*products/*__ app, there are two models which are: `Product` model and `Photo` model.
 
-To begin with, `Product` model literally contains the information of all products that admin include in their database. It looks as follows:
+1. `Product` model: This model includes the all information of `Product`.
+2. `Photo` model: All photos that are related to each `Product`. 
+
+<br>
+
+Below is the `Product` model that I made:
 
 ```python
 from common.models import TimeStampModel
@@ -166,23 +177,19 @@ class Product(TimeStampModel):
         (BOTTOMS, 'Bottoms'),
     ]
 
-    product_name = models.CharField(max_length=80, verbose_name='상품이름')
-    product_price = models.DecimalField(max_digits=8, decimal_places=2, verbose_name='상품가격')
+    slug = models.SlugField(max_length=80, null=False, default='', editable=False)
+    product_name = models.CharField(max_length=80, verbose_name='상품이름', unique=True)
+    product_price = models.PositiveIntegerField(verbose_name='상품가격')
+    product_composition = models.TextField(verbose_name='상품성분')
     product_description = models.TextField(verbose_name='상품설명')
     product_color = models.CharField(max_length=10, verbose_name='색상', null=True, blank=True)
-    product_size = models.CharField(max_length=2, verbose_name='사이즈', null=True, blank=True)
+    product_size = models.CharField(max_length=5, verbose_name='사이즈', null=True, blank=True)
     product_category = models.CharField(max_length=30, verbose_name='상품 카테고리', choices=PRODUCT_CATEGORY, default=TOPS)
+    product_thumbnail = models.ImageField(verbose_name='상품썸네일', upload_to='product_thumbnail')
+    stock = models.PositiveIntegerField(verbose_name='재고수량', default=0)
     is_onsale = models.BooleanField(verbose_name='할인 중', default=False)
     is_newarrival = models.BooleanField(verbose_name='신상', default=False)
     is_preorder = models.BooleanField(verbose_name='프리오더', default=False)
-    customer = models.ForeignKey('users.User', on_delete=models.SET_NULL, null=True)
-
-    def __str__(self):
-        return f'{self.product_name}: {self.product_price}'
-    
-    class Meta:
-        verbose_name = '상품목록'
-        verbose_name_plural = '상품목록'
 ```
 <br>
 
@@ -193,34 +200,41 @@ The followings are the description of each model name:<br>
 | Field Name| Description | 
 | :--- |    :----   | 
 | `product_name` | Name of product. Linked with [`CharField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#charfield){:target="_blank"}| 
-| `product_price`| Price of product. Linked with [`DecimalField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#decimalfield){:target="_blank"}| 
+| `product_price`| Price of product. Linked with [`PositiveIntegerField`](https://docs.djangoproject.com/en/2.2/ref/models/fields/#positiveintegerfield){:target="_blank"}| 
+| `product_composition`| Description of composition. Linked with [`TextField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#textfield){:target="_blank"}| 
 | `product_description`| Description of product. Linked with [`TextField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#textfield){:target="_blank"}| 
+| `product_thumbnail`| Thumbnail picture of product. Linked with [`ImageField`](https://docs.djangoproject.com/en/2.2/ref/models/fields/#imagefield){:target="_blank"}| 
 | `product_color`| Color of product. Linked with [`CharField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#charfield){:target="_blank"}| 
 | `product_size`| Size of product. Linked with [`CharField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#charfield){:target="_blank"}| 
 | `is_onsale`| Whether or not product is on sale. Linked with [`BooleanField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#booleanfield){:target="_blank"}| 
 | `is_newarrival`| Whether or not product is new arrival. Linked with [`BooleanField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#booleanfield){:target="_blank"}| 
-| `is_preorder`| Whether or not product is new arrival. Linked with [`BooleanField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#booleanfield){:target="_blank"}| 
-| `customer`| Whether or not product is new arrival. Linked with [`ForeignKey`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#django.db.models.ForeignKey){:target="_blank"}| 
+| `is_preorder`| Whether or not product is pre-order. Linked with [`BooleanField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#booleanfield){:target="_blank"}| 
 
-
-For the `product_price`, I ended up changing the field with [`DecimalField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#decimalfield){:target="_blank"} because [`DecimalField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#decimalfield){:target="_blank"} could also cover the integer number of [`IntegerField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#integerfield){:target="_blank"}[^3]. 
-
-- `max_digits`: The total number of digits including decimal points (required)
-- `decimal_places`: The number of digits of decimal places (required). 
-
-If you put bigger number that exceeds the `max_digits`, then Django will throw error as below:
-
-> *InvalidOperation at /admin/orders/order [<class 'decimal.InvalidOperation'>]*
 
 <!-- {% include alerts/warning.html content="If you put bigger number that exceeds the max_digits, then Django will throw InvalidOperation [<class 'decimal.InvalidOperation'>] error." %} -->
 
 <br>
 
-For the `product_description`, I chose [`TextField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#textfield){:target="_blank"} because I did not want admin be restricted to text limit of explanation of products.<br><br>
+For the `product_description` and `product_composition` fields, I chose [`TextField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#textfield){:target="_blank"} because I did not want admin be restricted to text limit of explanation of products.<br><br>
 
 For `is_onsale`, `is_newarrival` and `is_preorder`, I chose [`BooleanField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#booleanfield){:target="_blank"} just to simply show True/False value. These fields will be used in *admin.py* to be shown in admin panel as well.<br><br>
 
-Meanwhile, I included the [`__str__`](https://docs.djangoproject.com/en/3.2/ref/models/instances/#str){:target="_blank"} model instance method as I did in `users/` part above.
+Next, I included the [`__str__`](https://docs.djangoproject.com/en/3.2/ref/models/instances/#str){:target="_blank"} model instance method and [meta class](https://docs.djangoproject.com/en/3.2/topics/db/models/#meta-options){:target="_blank"} as I did in `users/` part above. I chose `product_name` for display. 
+
+```python
+    def __str__(self):
+        return self.product_name
+
+    class Meta:
+        verbose_name = '상품목록'
+        verbose_name_plural = '상품목록'
+```
+
+<br>
+
+
+
+
 <br><br>
 
 ### `Photo` Model
@@ -233,8 +247,8 @@ class Photo(TimeStampModel):
     ''' Photo Model Definition ''' 
 
     caption = models.CharField(max_length=50, verbose_name='사진캡션')
-    file = models.ImageField(upload_to="product_photo")
-    product = models.ForeignKey('Product', on_delete=models.CASCADE)
+    images = models.ImageField(upload_to="product_photo", verbose_name='파일', null=True, blank=True)
+    product = models.ForeignKey('Product', on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return self.caption
@@ -250,20 +264,21 @@ The followings are the description of each model name:<br>
 | Field Name| Description | 
 | :--- |    :----   | 
 | `caption` | Caption of photo. Linked with [`CharField`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#charfield){:target="_blank"}| 
-| `file`| File(image) of product. Linked with [`ImageField`](https://docs.djangoproject.com/en/2.2/ref/models/fields/#imagefield){:target="_blank"}| 
+| `images`| File(image) of product. Linked with [`ImageField`](https://docs.djangoproject.com/en/2.2/ref/models/fields/#imagefield){:target="_blank"}| 
 | `product`| Product to which photo is linked. Linked with [`ForeignKey`](https://docs.djangoproject.com/en/2.2/ref/models/fields/#foreignkey){:target="_blank"}| 
 
-For `file` field, as it is obviously need to be an image, I used [`ImageField`](https://docs.djangoproject.com/en/2.2/ref/models/fields/#imagefield){:target="_blank"}. 
+For `images` field, as it is obviously need to be an image, I used [`ImageField`](https://docs.djangoproject.com/en/2.2/ref/models/fields/#imagefield){:target="_blank"}. 
+
+1. [`upload_to`](https://docs.djangoproject.com/en/3.2/ref/models/fields/#django.db.models.FileField.upload_to){:target="_blank"}: This attribute allows me to designate in which directories would I want to save images. This part will be more discussed later in handling media files. In this case, I decided to save folder within *product_photo/*.
+2. [`null`](https://docs.djangoproject.com/en/2.2/ref/models/fields/#null){:target="_blank"} & [`blank`](https://docs.djangoproject.com/en/2.2/ref/models/fields/#blank){:target="_blank"}: I did not make it required unlike the `product_thumbanil` field that I defined in `Product` model, as there are possibility that admin won't have any images to upload.
 
 {% include alerts/info.html content="In order to use ImageField, you need to install pillow package." %}
-
-I also 
 
 In order to tell `Photo` model is linked up to which product, I made `product` field and linked it up with `Product` model with [`ForeignKey`](https://docs.djangoproject.com/en/2.2/ref/models/fields/#foreignkey){:target="_blank"}. [`ForeignKey`](https://docs.djangoproject.com/en/2.2/ref/models/fields/#foreignkey){:target="_blank"} is one of the relationship fields that connects one model field to the other model field, and it is normally used when each model fields are in relationship of __1:N__.<br><br>
 
 For example, `product` can have many `photo`s of itself. However, that specific `photo`s should always belong to only one `product`. In other words, photo of product A cannot also be a photo of product B.<br><br>
 
-These are my arugments setting:
+These are my attributes setting:
 - *`to`*: `'Product'`
 - *`on_delete`*: `models.CASCADE`
 
@@ -273,7 +288,7 @@ As Python always read from top to bottom, if `Photo` model is placed below the `
 
 Therefore, I linked up as a string value of `Product` model so that `product` field in `Photo` model can find `Product` no matter which place it is located.<br><br>
 
-Also, if we delete `Product` it may well `Photo` should be deleted. Thus, I used [`models.CASCADE`](https://docs.djangoproject.com/en/2.2/ref/models/fields/#django.db.models.CASCADE){:target="_blank"}. 
+Also, if we delete `Product` it may well `Photo` should be deleted. Thus, I set `on_delete` attribute as [`models.CASCADE`](https://docs.djangoproject.com/en/2.2/ref/models/fields/#django.db.models.CASCADE){:target="_blank"}. 
 
 
 ### `save()` method
@@ -286,6 +301,7 @@ Unlike when you [make changes and save in admin model](https://docs.djangoprojec
 
 I added the following code more below the `Product` model and above `__str__` method.<br>
 ```python
+# Thumbanil preview in detail page of products
 def save(self, *args, **kwargs):
     self.product_color = str.upper(self.product_color)
     self.product_size = str.upper(self.product_size)

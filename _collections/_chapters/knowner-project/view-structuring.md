@@ -1,14 +1,44 @@
 ---
-title: Views
+title: Views & Templates
 pagenum: 3
 ---
 
-This is an example page demonstrating various types of content and their interactions with the features provided by the theme.
+[Views](https://docs.djangoproject.com/en/2.2/topics/http/views/#writing-views){:target="_blank"} are the ways that Django shows data. We define the logic inside the *views.py*, and apply logic of *views.py* through the [templates](https://docs.djangoproject.com/en/2.2/topics/templates/#module-django.template){:target="_blank"} which can generate HTML code dynamically.<br><br>
+
+This section will be quite extensive as I will go over most of views for each apps. For each apps, I will explicitly explain about how I made views inside of the models.<br><br>
 
 
-## Heading levels
+## URL Setting 
 
-### Here's a subheading
+This section covers the [URL setting](https://docs.djangoproject.com/en/2.2/topics/http/urls/#overview){:target="_blank"}.<br><br>
+
+To begin with, in the *config/* folder, which is the main start point of all Django apps and configuration settings are stored, I edited *urls.py* for letting Django know where to catch the top-level of URL for each apps.<br><br>
+
+*urls.py* file looks as below: 
+
+```python
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls), 
+    path('', include('common.urls', namespace='common')),
+    path('users/', include('users.urls', namespace='users')),
+    path('products/', include('products.urls', namespace='products')),
+    path('orders/', include('orders.urls', namespace='orders')),
+]
+```
+<br>
+
+`urlpatterns`.<br><br>
+
+We can set up url path with [`path()`](https://docs.djangoproject.com/en/2.2/ref/urls/#path){:target="_blank"} functions. I followed *route* name for each apps exactly as same as app names (in plural form).<br><br>
+
+For the admin panel,<br><br>.
+
+For the other apps, I included the 
+
+### 
 
 Text for this subheading goes here. Note that the subheading appears in the automatically-generated table of contents, which sits as a sidebar on the right at wider resolutions and inline with the body content at narrower resolutions.
 

@@ -59,9 +59,9 @@ defaults:
       chapnum: 1
   -
     scope:
-      path: "_collections/_chapters/second-chapter"
+      path: "_collections/_chapters/fleam-project"
     values:
-      chapter: "Second Chapter"
+      chapter: "Fleam"
       chapnum: 2
   -
     scope:
